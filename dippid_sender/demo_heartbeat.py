@@ -1,4 +1,3 @@
-# Random git test
 
 from DIPPID import SensorUDP
 
