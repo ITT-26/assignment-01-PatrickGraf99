@@ -83,7 +83,7 @@ def handle_button_3_data(data):
 
 def handle_button_4_data(data):
     if data == 0:
-        return 
+        return
     global curr_direction, movement_update, game_state, waiting_for_update
     if waiting_for_update:
         print('Input was ignored since the game has not been updated since last change')
