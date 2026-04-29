@@ -1,3 +1,4 @@
+import random
 import time
 from enum import Enum
 
@@ -27,14 +28,45 @@ SQUARE_SIZE = 20
 win = window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 player_squares = []
 
+# Vars for moving the snake
 movement_update = (0, 0)
 curr_direction = Direction.NONE
 waiting_for_update = False
 game_state = GameState.RUNNING
 
+
+def get_random_fruit_pos():
+    """
+    A very very inefficient way to get a random fruit. This method will get even less efficient the longer the snake is.
+    It will do for now, a full refactor could include a grid for the game and a random selection from all unoccupied
+    grid spaces
+    :return:
+    """
+    while True:
+        spaces_x = int(WINDOW_WIDTH / SQUARE_SIZE)
+        x = random.randint(0, spaces_x - 1)
+        spaces_y = int(WINDOW_HEIGHT / SQUARE_SIZE)
+        y = random.randint(0, spaces_y - 1)
+        overlapping = False
+        for square in player_squares:
+            if square.x == x and square.y == y:
+                overlapping = True
+        if not overlapping:
+            # Mult by 10 to adjust placement
+            return x * SQUARE_SIZE, y * SQUARE_SIZE
+
+pos = get_random_fruit_pos()
+fruit = shapes.Rectangle(
+    pos[0],
+    pos[1],
+    SQUARE_SIZE,
+    SQUARE_SIZE,
+    (0, 255, 0)
+)
+
 head = shapes.Rectangle(
-    WINDOW_WIDTH / 2 - SQUARE_SIZE / 2,
-    WINDOW_HEIGHT / 2 - SQUARE_SIZE / 2,
+    WINDOW_WIDTH / 2,
+    WINDOW_HEIGHT / 2,
     SQUARE_SIZE,
     SQUARE_SIZE,
     (255, 0, 0)
@@ -132,6 +164,7 @@ def update_player_squares(dt):
 def on_draw():
     win.clear()
     draw_player_squares()
+    fruit.draw()
 
 @win.event
 def on_key_press(symbol, modifiers):
