@@ -5,6 +5,12 @@ import pyglet
 from pyglet import window, shapes
 from pyglet.window import key
 
+from DIPPID import SensorUDP
+# Copied from DIPPID_receiver
+# use UPD (via WiFi) for communication
+PORT = 5700
+sensor = SensorUDP(PORT)
+
 class Direction(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
@@ -35,6 +41,64 @@ head = shapes.Rectangle(
 )
 
 player_squares.append(head)
+
+def handle_button_1_data(data):
+    if data == 0:
+        return
+    global curr_direction, movement_update, game_state, waiting_for_update
+    if waiting_for_update:
+        print('Input was ignored since the game has not been updated since last change')
+        return
+    if curr_direction != Direction.HORIZONTAL:
+        print('Moving left')
+        curr_direction = Direction.HORIZONTAL
+        movement_update = (-SQUARE_SIZE, 0)
+    waiting_for_update = True
+
+def handle_button_2_data(data):
+    if data == 0:
+        return
+    global curr_direction, movement_update, game_state, waiting_for_update
+    if waiting_for_update:
+        print('Input was ignored since the game has not been updated since last change')
+        return
+    if curr_direction != Direction.HORIZONTAL:
+        print('Moving right')
+        curr_direction = Direction.HORIZONTAL
+        movement_update = (SQUARE_SIZE, 0)
+    waiting_for_update = True
+
+def handle_button_3_data(data):
+    if data == 0:
+        return
+    global curr_direction, movement_update, game_state, waiting_for_update
+    if waiting_for_update:
+        print('Input was ignored since the game has not been updated since last change')
+        return
+    if curr_direction != Direction.VERTICAL:
+        print('Moving up')
+        curr_direction = Direction.VERTICAL
+        movement_update = (0, SQUARE_SIZE)
+    waiting_for_update = True
+
+def handle_button_4_data(data):
+    if data == 0:
+        return 
+    global curr_direction, movement_update, game_state, waiting_for_update
+    if waiting_for_update:
+        print('Input was ignored since the game has not been updated since last change')
+        return
+    if curr_direction != Direction.VERTICAL:
+        print('Moving down')
+        curr_direction = Direction.VERTICAL
+        movement_update = (0, -SQUARE_SIZE)
+    waiting_for_update = True
+
+sensor.register_callback('button_1', handle_button_1_data)
+sensor.register_callback('button_2', handle_button_2_data)
+sensor.register_callback('button_3', handle_button_3_data)
+sensor.register_callback('button_4', handle_button_4_data)
+
 
 def update_movement(movement, direction):
     global movement_update, curr_direction
@@ -83,11 +147,11 @@ def on_key_press(symbol, modifiers):
         print('Moving right')
         curr_direction = Direction.HORIZONTAL
         movement_update = (SQUARE_SIZE, 0)
-    elif symbol == key.UP:
+    elif symbol == key.UP and curr_direction != Direction.VERTICAL:
         print('Moving up')
         curr_direction = Direction.VERTICAL
         movement_update = (0, SQUARE_SIZE)
-    elif symbol == key.DOWN:
+    elif symbol == key.DOWN and curr_direction != Direction.VERTICAL:
         print('Moving down')
         curr_direction = Direction.VERTICAL
         movement_update = (0, -SQUARE_SIZE)
